@@ -15,6 +15,7 @@ public class AudioReactive : MonoBehaviour
 
     public GameObject background;
 
+    public double transition1_2;
     public double phaseTwoStart;
     public double phaseThreeStart;
     public double phaseFourStart;
@@ -46,10 +47,18 @@ public class AudioReactive : MonoBehaviour
         centerRenderer.material = lit;
 
         for (int i =0; i < numSphere; i++){
+            int sign;
+            if(i % 2 == 0)
+            {
+                sign = 1;
+            } else
+            {
+                sign = -1;
+            }
             // Random start positions
-            float r = 10f;
-            startPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * Random.Range(-2f, -1f), r * Random.Range(-1f, 1f));
-            endPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * Random.Range(1f, 2f), r * Random.Range(-1f, 1f));        
+            float r = 10f * sign;
+            startPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * Random.Range(-2f, -1f) , r * Random.Range(-1f, 1f));
+            endPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * Random.Range(1f, 2f) , r * Random.Range(-1f, 1f));        
 
             r = 3f; // radius of the circle
             // Circular end position, for some reason uncommenting it fucks up the loop for making spheres
@@ -82,7 +91,7 @@ public class AudioReactive : MonoBehaviour
         // Measure Time 
         // Time.deltaTime = The interval in seconds from the last frame to the current one
         // but what if time flows according to the music's amplitude?    
-        if(timeElapsed < phaseTwoStart)
+        if(timeElapsed < transition1_2)
         {
             
             time += Time.deltaTime;
@@ -92,14 +101,21 @@ public class AudioReactive : MonoBehaviour
             {
                 Vector3 center = new Vector3(0, 0, 0);
                 // lerpFraction variable defines the point between startPosition and endPosition (0~1)
-                lerpFraction = Mathf.Sin(time) * 0.5f + 0.5f;
+                lerpFraction = Mathf.Sin(time * 2) * 0.5f + 0.5f;
 
                 // Lerp logic. Update position       
                 t = i* 2 * Mathf.PI / numSphere;
 
 
-                spheres[i].transform.position = Vector3.Lerp(startPosition[i], endPosition[i], lerpFraction / 2);
+                spheres[i].transform.position = Vector3.Lerp(startPosition[i], endPosition[i], lerpFraction);
 
+            }
+        } else if (timeElapsed < phaseTwoStart)
+        {
+            time += Time.deltaTime;
+            for(int i = 0; i <numSphere; i++)
+            {
+                spheres[i].transform.position = Vector3.MoveTowards(spheres[i].transform.position, Vector3.zero, Time.deltaTime * 9);
             }
         }
         
