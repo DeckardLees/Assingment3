@@ -728,7 +728,7 @@ MonoBehaviour:
   background: {fileID: 0}
   transition1_2: 26
   phaseTwoStart: 28
-  phaseThreeStart: 55
+  phaseThreeStart: 60
   phaseFourStart: 65
   phaseFiveStart: 87
   phaseSixStart: 123

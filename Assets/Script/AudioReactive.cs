@@ -24,7 +24,7 @@ public class AudioReactive : MonoBehaviour
     static int numSphere = 100; 
     float time = 0f;
     Vector3[] initPos;
-    Vector3[] startPosition, circlePosition, endPosition;
+    Vector3[] startPosition,randomPosition, randPos2, endPosition;
     float lerpFraction; // Lerp point between 0~1
     float t;
 
@@ -38,6 +38,8 @@ public class AudioReactive : MonoBehaviour
         initPos = new Vector3[numSphere]; // Start positions
         startPosition = new Vector3[numSphere]; 
         endPosition = new Vector3[numSphere];
+        randomPosition = new Vector3[numSphere];
+        randPos2 = new Vector3[numSphere];
         // Define target positions. Start = random, End = heart 
 
         //centerSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -56,13 +58,15 @@ public class AudioReactive : MonoBehaviour
                 sign = -1;
             }
             // Random start positions
-            float r = 10f * sign;
-            startPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * Random.Range(-2f, -1f) , r * Random.Range(-1f, 1f));
-            endPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * Random.Range(1f, 2f) , r * Random.Range(-1f, 1f));        
+            float r = 10f;
+            startPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * sign * Random.Range(-2f, -1f) , r * Random.Range(-1f, 1f));
+            randomPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f));
+            randomPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f));
+            endPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * sign * Random.Range(1f, 2f) , r * Random.Range(-1f, 1f));        
 
             r = 3f; // radius of the circle
             // Circular end position, for some reason uncommenting it fucks up the loop for making spheres
-            //circlePosition[i] = new Vector3(r * Mathf.Sin(i * 2 * Mathf.PI / numSphere), r * Mathf.Cos(i * 2 * Mathf.PI / numSphere));
+            //circlePosition[i] = new Vector3(r * Mathf.Sin(i * 2 * Mathf.PI / numSphere), r * Mathf.Cos(i * 2 * Mathf.PI / numSphere), 0);
         }
         // Let there be spheres..
         Debug.Log("running sphere loop");
@@ -91,31 +95,53 @@ public class AudioReactive : MonoBehaviour
         // Measure Time 
         // Time.deltaTime = The interval in seconds from the last frame to the current one
         // but what if time flows according to the music's amplitude?    
-        if(timeElapsed < transition1_2)
+        if (timeElapsed < transition1_2)
         {
-            
+
             time += Time.deltaTime;
             // new comment
-            
-            for(int i = 0; i < numSphere; i++)
+
+            for (int i = 0; i < numSphere; i++)
             {
                 Vector3 center = new Vector3(0, 0, 0);
                 // lerpFraction variable defines the point between startPosition and endPosition (0~1)
                 lerpFraction = Mathf.Sin(time * 2) * 0.5f + 0.5f;
 
                 // Lerp logic. Update position       
-                t = i* 2 * Mathf.PI / numSphere;
+                t = i * 2 * Mathf.PI / numSphere;
 
 
                 spheres[i].transform.position = Vector3.Lerp(startPosition[i], endPosition[i], lerpFraction);
 
             }
-        } else if (timeElapsed < phaseTwoStart)
+        }
+        else if (timeElapsed < phaseTwoStart)
         {
             time += Time.deltaTime;
-            for(int i = 0; i <numSphere; i++)
+            for (int i = 0; i < numSphere; i++)
             {
                 spheres[i].transform.position = Vector3.MoveTowards(spheres[i].transform.position, Vector3.zero, Time.deltaTime * 9);
+            }
+        }
+        else if (timeElapsed < phaseThreeStart)
+        {
+            time += Time.deltaTime * AudioSpectrum.audioAmp;
+            // new comment
+            int r = 10;
+            // Vector3 chaosPos = new Vector3(r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f));
+            for (int i = 0; i < numSphere; i++)
+            {
+                Vector3 chaosPos = new Vector3(r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f));
+                Vector3 center = new Vector3(0, 0, 0);
+                // lerpFraction variable defines the point between startPosition and endPosition (0~1)
+                lerpFraction = Mathf.Sin(time * 5) * 0.5f + 0.5f;
+
+
+                //spheres[i].transform.position = Vector3.Lerp(randPos2[i], randomPosition[i] , lerpFraction);
+                spheres[i].transform.position = Vector3.MoveTowards(spheres[i].transform.position, chaosPos, AudioSpectrum.audioAmp * 3);
+                spheres[i].transform.localScale = new Vector3(.5f * scale, .5f * scale, .5f);
+                spheres[i].transform.Rotate(AudioSpectrum.audioAmp, 1f, 1f);
+
             }
         }
         
