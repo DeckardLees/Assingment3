@@ -726,11 +726,11 @@ MonoBehaviour:
   centerSphere: {fileID: 0}
   model: {fileID: 919132149155446097, guid: 9084f5e784576814b9ca3974a00e9615, type: 3}
   background: {fileID: 0}
-  transition1_2: 26
-  phaseTwoStart: 28
-  phaseThreeStart: 60
-  phaseFourStart: 65
-  phaseFiveStart: 87
+  transition1_2: 28
+  phaseTwoStart: 29
+  phaseThreeStart: 62
+  phaseFourStart: 73
+  phaseFiveStart: 93
   phaseSixStart: 123
 --- !u!4 &1852711057
 Transform:

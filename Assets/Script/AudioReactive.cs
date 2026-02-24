@@ -24,7 +24,7 @@ public class AudioReactive : MonoBehaviour
     static int numSphere = 100; 
     float time = 0f;
     Vector3[] initPos;
-    Vector3[] startPosition,randomPosition, randPos2, endPosition;
+    Vector3[] startPosition,randomPosition, randPos2, endPosition, randLeft, randRight;
     float lerpFraction; // Lerp point between 0~1
     float t;
 
@@ -40,6 +40,8 @@ public class AudioReactive : MonoBehaviour
         endPosition = new Vector3[numSphere];
         randomPosition = new Vector3[numSphere];
         randPos2 = new Vector3[numSphere];
+        randLeft = new Vector3[numSphere];
+        randRight = new Vector3[numSphere];
         // Define target positions. Start = random, End = heart 
 
         //centerSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -61,8 +63,9 @@ public class AudioReactive : MonoBehaviour
             float r = 10f;
             startPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * sign * Random.Range(-2f, -1f) , r * Random.Range(-1f, 1f));
             randomPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f));
-            randomPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f));
-            endPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * sign * Random.Range(1f, 2f) , r * Random.Range(-1f, 1f));        
+            endPosition[i] = new Vector3(r * Random.Range(-1f, 1f), r * sign * Random.Range(1f, 2f) , r * Random.Range(-1f, 1f));
+            randLeft[i] = new Vector3(r * Random.Range(-2f, -1f), r * sign * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f));
+            randRight[i] = new Vector3(r * Random.Range(1f, 2f), r * sign * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f));
 
             r = 3f; // radius of the circle
             // Circular end position, for some reason uncommenting it fucks up the loop for making spheres
@@ -79,9 +82,19 @@ public class AudioReactive : MonoBehaviour
             Renderer sphereRenderer = spheres[i].GetComponent<Renderer>();
             // HSV color space: https://en.wikipedia.org/wiki/HSL_and_HSV
             float hue = (float)i / numSphere; // Hue cycles through 0 to 1
-            Color color = Color.HSVToRGB(hue, 1f, 1f); // Full saturation and brightness
+            //Color color = Color.HSVToRGB(hue, 1f, 1f); // Full saturation and brightness
+            Color red = Color.red;
+            Color grey = Color.gray;
             sphereRenderer.material = unlit;
-            sphereRenderer.material.color = color;
+            if( i % 2 == 0)
+            {
+                sphereRenderer.material.color = red;
+            }
+            else
+            {
+                sphereRenderer.material.color = grey;
+            }
+            
         }
     }
 
@@ -124,6 +137,54 @@ public class AudioReactive : MonoBehaviour
             }
         }
         else if (timeElapsed < phaseThreeStart)
+        {
+            time += Time.deltaTime * AudioSpectrum.audioAmp;
+            // new comment
+            int r = 10;
+            // Vector3 chaosPos = new Vector3(r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f));
+            for (int i = 0; i < numSphere; i++)
+            {
+                Vector3 chaosPos = new Vector3(r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f), r * Random.Range(-1f, 1f));
+                Vector3 center = new Vector3(0, 0, 0);
+                // lerpFraction variable defines the point between startPosition and endPosition (0~1)
+                lerpFraction = Mathf.Sin(time * 5) * 0.5f + 0.5f;
+
+
+                //spheres[i].transform.position = Vector3.Lerp(randPos2[i], randomPosition[i] , lerpFraction);
+                spheres[i].transform.position = Vector3.MoveTowards(spheres[i].transform.position, chaosPos, AudioSpectrum.audioAmp * 3);
+                spheres[i].transform.localScale = new Vector3(.5f * scale, .5f * scale, .5f);
+                spheres[i].transform.Rotate(AudioSpectrum.audioAmp, 1f, 1f);
+
+            }
+        }
+        else if (timeElapsed < phaseFourStart) 
+        {
+            time += Time.deltaTime;
+            for (int i = 0; i < numSphere; i++) 
+            {
+                spheres[i].transform.localScale = new Vector3(.2f * scale, .2f * scale, .2f *scale);
+            }
+        
+        } 
+        else if (timeElapsed < phaseFiveStart)
+        {
+            time += Time.deltaTime;
+            // new comment
+
+            for (int i = 0; i < numSphere; i++)
+            {
+            
+                // lerpFraction variable defines the point between startPosition and endPosition (0~1)
+                lerpFraction = Mathf.Sin(time * 2) * 0.5f + 0.5f;
+
+                // Lerp logic. Update position       
+                t = i * 2 * Mathf.PI / numSphere;
+
+
+                spheres[i].transform.position = Vector3.Lerp(randLeft[i], randRight[i], lerpFraction);
+
+            }
+        } else 
         {
             time += Time.deltaTime * AudioSpectrum.audioAmp;
             // new comment
